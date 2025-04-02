@@ -1,0 +1,13 @@
+# Ne pas suivre les variables d’environnement
+.env
+
+# Ne pas suivre la base de données locale
+*.db
+
+# Ne pas suivre les fichiers temporaires Python
+__pycache__/
+*.py[cod]
+
+# Ne pas suivre l’environnement virtuel
+env/
+
