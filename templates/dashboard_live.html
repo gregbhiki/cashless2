@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>📊 Dashboard Live</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>📈 Dashboard en temps réel</h1>
+
+    <p>💰 Solde total : <span id="totalBalance">...</span> €</p>
+    <p>💳 Total recharges : <span id="totalRecharges">...</span> €</p>
+    <p>➖ Total paiements : <span id="totalPayments">...</span> €</p>
+
+    <canvas id="liveChart" width="600" height="250"></canvas>
+
+    <script>
+        const ctx = document.getElementById('liveChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Transactions par minute',
+                    data: [],
+                    fill: false,
+                    tension: 0.1
+                }]
+            }
+        });
+
+        async function fetchStats() {
+            const response = await fetch('/api/stats');
+            const data = await response.json();
+
+            document.getElementById("totalBalance").textContent = data.total_balance.toFixed(2);
+            document.getElementById("totalRecharges").textContent = data.total_recharges.toFixed(2);
+            document.getElementById("totalPayments").textContent = data.total_payments.toFixed(2);
+
+            chart.data.labels = data.transactions_per_minute.map(t => t.minute);
+            chart.data.datasets[0].data = data.transactions_per_minute.map(t => t.count);
+            chart.update();
+        }
+
+        fetchStats();
+        setInterval(fetchStats, 5000); // ⏱️ toutes les 5 secondes
+    </script>
+
+    <p><a href="/admin">⬅️ Retour</a></p>
+</body>
+</html>
+

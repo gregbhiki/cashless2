@@ -14,9 +14,14 @@ from routes import admin
 from auth import add_session_middleware
 from starlette.middleware.errors import ServerErrorMiddleware
 
+from routes import api
 
-app = FastAPI()
+
+app = FastAPI()  # ✅ ici on crée l'application
 add_session_middleware(app)
+
+app.include_router(admin.router, prefix="/admin")
+app.include_router(api.router, prefix="/api")
 
 # ➕ Ajoute ça :
 app.add_middleware(ServerErrorMiddleware, debug=True)

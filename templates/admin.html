@@ -1,100 +1,67 @@
-k<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Cashless</title>
+    <title>🎛️ Interface Admin Cashless</title>
+    <meta charset="UTF-8" />
 </head>
 <body>
-    <h1>🎛️ Interface Admin - Utilisateurs RFID</h1>
+    <h1>👋 Bienvenue sur l’interface Admin</h1>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-
-    <!-- Formulaire pour ajouter un utilisateur -->
     <h2>➕ Ajouter un utilisateur</h2>
-    <form method="post" action="/admin/add">
-        Nom : <input type="text" name="name" required>
-        UID RFID : <input type="text" name="rfid_uid" required>
-        Solde initial (€) : <input type="number" name="balance" step="0.01" required>
+    <form action="/admin/add" method="post">
+        <input type="text" name="name" placeholder="Nom" required>
+        <input type="text" name="rfid_uid" placeholder="UID Bracelet" required>
+        <input type="number" step="0.01" name="balance" placeholder="Solde initial (€)" required>
         <button type="submit">Ajouter</button>
     </form>
 
     <hr>
 
-    <!-- Liste des utilisateurs -->
     <h2>👥 Utilisateurs enregistrés</h2>
-    <table border="1" cellpadding="6">
-        <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>UID</th>
-            <th>Solde (€)</th>
-            <th>Actions</th>
-        </tr>
-        {% for user in users %}
-        <tr>
-            <td>{{ user.id }}</td>
-            <td>{{ user.name }}</td>
-            <td>{{ user.rfid_uid }}</td>
-            <td>{{ '%.2f' % user.balance }}</td>
-            <td>
-                <!-- Recharge -->
-                <form method="post" action="/admin/recharge" style="display:inline;">
-                    <input type="hidden" name="user_id" value="{{ user.id }}">
-                    <input type="number" name="amount" step="0.01" placeholder="€" required>
-                    <button type="submit">💰 Recharger</button>
-                </form>
-                <!-- Débiter -->
-                <form method="post" action="/admin/pay" style="display:inline;">
-                    <input type="hidden" name="user_id" value="{{ user.id }}">
-                    <input type="number" name="amount" step="0.01" placeholder="€" required>
-                    <button type="submit">➖ Débiter</button>
-                </form>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="5">
-                <details>
-                    <summary>📜 Voir les transactions</summary>
-                    {% set txs = user_transactions[user.id] %}
-                    {% if txs %}
-                        <ul>
-                        {% for tx in txs %}
-                            <li>
-                                {{ tx.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} :
-                                {{ tx.type }} de {{ tx.amount }} €
-                            </li>
-                        {% endfor %}
-                        </ul>
-                    {% else %}
-                        <em>Aucune transaction</em>
-                    {% endif %}
-                </details>
-            </td>
-        </tr>
-        {% endfor %}
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>UID</th>
+                <th>Solde (€)</th>
+                <th>Recharger</th>
+                <th>Débiter</th>
+                <th>Transactions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.rfid_uid }}</td>
+                <td>{{ '%.2f' % user.balance }}</td>
+                <td>
+                    <form action="/admin/recharge" method="post">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <input type="number" step="0.01" name="amount" placeholder="Montant" required>
+                        <button type="submit">💳 Recharger</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/admin/debit" method="post">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <input type="number" step="0.01" name="amount" placeholder="Montant" required>
+                        <button type="submit">➖ Débiter</button>
+                    </form>
+                </td>
+                <td>
+                    <a href="/admin/transactions/{{ user.id }}">📜 Voir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 
     <hr>
-
-    <h2>🧰 Outils Admin</h2>
-    <form action="/admin/reset-balances" method="post">
-        <button type="submit">🔁 Réinitialiser tous les soldes</button>
-    </form>
-    <form action="/admin/reset-transactions" method="post">
-        <button type="submit">🧾 Supprimer toutes les transactions</button>
-    </form>
-    <form action="/admin/reset" method="post">
-        <button type="submit" style="color: red;">💥 Supprimer tous les utilisateurs</button>
-    </form>
-    <form action="/admin/export-balances" method="get">
-        <button type="submit">📥 Export CSV des soldes</button>
-    </form>
-
-    <hr>
-
-    <a href="/logout">🚪 Se déconnecter</a>
+    <p>📈 <a href="/admin/live">Voir le dashboard en temps réel</a></p>
+    <p>🔐 <a href="/logout">Se déconnecter</a></p>
 </body>
 </html>
 
