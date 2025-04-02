@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html><head><title>Admin Cashless</title></head>
+<body>
+<h1>🎛️ Interface Admin</h1>
+{% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+<form method="post" action="/admin/add">
+    Nom: <input type="text" name="name" required>
+    UID RFID: <input type="text" name="rfid_uid" required>
+    Solde initial: <input type="number" name="balance" step="0.01" required>
+    <button type="submit">Ajouter</button>
+</form>
+<hr>
+<h2>Utilisateurs</h2>
+<table border="1">
+<tr><th>ID</th><th>Nom</th><th>UID</th><th>Solde</th><th>Actions</th></tr>
+{% for user in users %}
+<tr>
+    <td>{{ user.id }}</td>
+    <td>{{ user.name }}</td>
+    <td>{{ user.rfid_uid }}</td>
+    <td>{{ user.balance }}</td>
+    <td>
+        <form action="/admin/recharge" method="post" style="display:inline;">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <input type="number" name="amount" step="0.01" required style="width: 60px;">
+            <button type="submit">💰</button>
+        </form>
+        <form action="/admin/pay" method="post" style="display:inline;">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <input type="number" name="amount" step="0.01" required style="width: 60px;">
+            <button type="submit">➖</button>
+        </form>
+    </td>
+</tr>
+<tr>
+    <td colspan="5">
+        <details>
+            <summary>📜 Transactions</summary>
+            {% set txs = user_transactions[user.id] %}
+            {% if txs %}
+                <ul>
+                {% for tx in txs %}
+                    <li>{{ tx.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} — {{ tx.type }} : {{ tx.amount }} €</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <em>Aucune transaction.</em>
+            {% endif %}
+        </details>
+    </td>
+</tr>
+{% endfor %}
+</table>
+<hr>
+<h2>Outils Admin</h2>
+<form action="/admin/reset-balances" method="post">
+    <button type="submit">🔁 Réinitialiser soldes</button>
+</form>
+<form action="/admin/reset-transactions" method="post">
+    <button type="submit">🧾 Vider les transactions</button>
+</form>
+<form action="/admin/reset" method="post">
+    <button type="submit">💥 Supprimer tous les utilisateurs</button>
+</form>
+<form action="/admin/export-balances" method="get">
+    <button type="submit">📥 Export CSV</button>
+</form>
+<p><a href="/logout">🚪 Se déconnecter</a></p>
+</body></html>
